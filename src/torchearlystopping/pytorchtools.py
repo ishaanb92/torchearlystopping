@@ -39,7 +39,7 @@ class EarlyStopping:
                        n_iter_val=n_iter_val,
                        epoch=curr_epoch,
                        checkpoint_dir=self.checkpoint_dir,
-                       suffix=curr_epoch)
+                       suffix=None)
 
         elif score < self.best_score - self.delta:
             self.counter += 1
@@ -59,6 +59,10 @@ class EarlyStopping:
                        n_iter_val=n_iter_val,
                        epoch=curr_epoch,
                        checkpoint_dir=self.checkpoint_dir,
-                       suffix=curr_epoch)
+                       suffix=None)
+
+        if self.verbose is True:
+            print('Current:: Score = {} Epoch = {}'.format(score, curr_epoch))
+            print('Best:: Score = {} Epoch = {}'.format(self.best_score, self.best_epoch))
 
         return self.early_stop, self.best_epoch

@@ -1,6 +1,74 @@
 import numpy as np
 import torch
-from utils.utils import save_model
+
+def save_model(model=None,
+               optimizer=None,
+               scheduler=None,
+               scaler=None,
+               n_iter=None,
+               n_iter_val=None,
+               epoch=None,
+               checkpoint_dir=None,
+               suffix=None):
+    """
+    Function save the PyTorch model along with optimizer state
+
+    Parameters:
+        model (torch.nn.Module object) : Pytorch model whose parameters are to be saved
+        optimizer (torch.optim object) : Optimizer used to train the model
+        epoch (int) : Epoch the model was saved in
+        path (str or Path object) : Path to directory where model parameters will be saved
+        suffix (str): Suffix string to prevent new save from overwriting old ones
+
+    Returns:
+        None
+
+    """
+
+    if model is None:
+        print('Save operation failed because model object is undefined')
+        return
+
+    if optimizer is None:
+        print('Save operation failed because optimizer is undefined')
+        return
+
+    if scaler is None:
+        scaler_state_dict = None
+    else:
+        scaler_state_dict = scaler.state_dict()
+
+    if scheduler is None:
+        save_dict = {'n_iter': n_iter,
+                     'model_state_dict': model.state_dict(),
+                     'optimizer_state_dict': optimizer.state_dict(),
+                     'scheduler_state_dict': None,
+                     'scaler': scaler_state_dict,
+                     'n_iter_val': n_iter_val,
+                     'epoch': epoch
+                    }
+    else:
+        save_dict = {'n_iter': n_iter,
+                     'model_state_dict': model.state_dict(),
+                     'optimizer_state_dict': optimizer.state_dict(),
+                     'scheduler_state_dict': scheduler.state_dict(),
+                     'scaler': scaler_state_dict,
+                     'n_iter_val': n_iter_val,
+                     'epoch': epoch
+                     }
+
+    #  Overwrite existing checkpoint file to avoid running out of memory
+    if suffix is None:
+        fname = 'checkpoint.pt'
+    else:
+        fname = 'checkpoint_{}.pt'.format(suffix)
+
+
+    save_path = os.path.join(checkpoint_dir, fname)
+
+    torch.save(save_dict, save_path)
+
+
 
 class EarlyStopping:
     """Early stops the training if validation loss doesn't improve after a given patience."""
